@@ -24,17 +24,14 @@ function startup(){
 
 }
 
-
 client.on('message', message =>{
     if(!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
-    if(command === 'clear') {
-        client.commands.get('clear').execute(message, args);
-    } else if (command === 'play') {
+    if (command === 'play' || command === 'skip' || command === 'p' || command === 'clear' || command === 's') {
         client.commands.get('play').execute(message, args);
-    } else if (command === 'leave') {
+    } else if (command === 'leave' || command === 'fuckoff' || command === 'begone') {
         client.commands.get('leave').execute(message, args);
     }
 });
@@ -44,6 +41,5 @@ fs.readFile('./token.config', 'utf8' , (err, token) => {
       console.error(err)
       return
     }
-
     client.login(token);
-  })
+  });
