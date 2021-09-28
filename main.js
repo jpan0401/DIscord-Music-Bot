@@ -44,5 +44,6 @@ fs.readFile('./token.config', 'utf8' , (err, token) => {
       console.error(err)
       return
     }
+
     client.login(token);
   })
