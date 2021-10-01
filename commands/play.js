@@ -72,7 +72,7 @@ async function playSong(voiceChannel, message, song) {
             queueAndPlay(voiceChannel, message);
         });
 
-        await message.reply(`:thumbsup: Now Playing ***Your Link!***`)
+        await message.channel.send(`:thumbsup: Now Playing ***Your Link!***`)
         isPlaying = true;
 
         return
@@ -96,7 +96,7 @@ async function playSong(voiceChannel, message, song) {
             queueAndPlay(voiceChannel, message);
         });
 
-        await message.reply(`:thumbsup: Now Playing ***${video.title}***`)
+        await message.channel.send(`:thumbsup: Now Playing ***${video.title}***`)
     }   else {
             message.channel.send('No video results found');
     }
