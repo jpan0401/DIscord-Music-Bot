@@ -5,6 +5,7 @@ const client = new Discord.Client();
 const prefix = '-';
 
 const fs = require('fs');
+const globals = require(`./globals.js`);
 
 client.commands = new Discord.Collection();
 
@@ -33,6 +34,8 @@ client.on('message', message =>{
         client.commands.get('play').execute(message, args);
     } else if (command === 'leave' || command === 'fuckoff' || command === 'begone') {
         client.commands.get('leave').execute(message, args);
+    } else if (command === 'loop' || command === 'l') {
+        client.commands.get('loop').execute(message, args);
     }
 });
 

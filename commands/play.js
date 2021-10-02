@@ -1,8 +1,9 @@
 const ytdl = require('ytdl-core')
 const ytSearch = require('yt-search');
+const globals = require('../globals.js');
 
-var songQueue = [];
-var isPlaying = false;
+let curSong = null;
+let firstTimePlaying = true;
 
 module.exports = {
     name: 'play',
@@ -19,31 +20,38 @@ module.exports = {
 
         if (cmd === 'clear') {
             message.channel.send("Clearing the queue");
-            songQueue = [];
-            isPlaying = false;
+            globals.clearQueue();
+            globals.isPlaying = false;
         } else if (cmd === 'skip' || cmd === 's') {
             message.channel.send("Skipping current song");
-            isPlaying = false;
+            globals.isPlaying = false;
+            curSong = null;
         } else {
-            songQueue.push(args.join(' '));
+            globals.getQueue().push(args.join(' '));
         }
         await queueAndPlay(voiceChannel, message)
     }
 }
 
 async function queueAndPlay(voiceChannel, message) {
-    song = checkQueue(voiceChannel, message);
-    if (song != null)
+    song = await checkQueue(voiceChannel, message);
+    if (song != null) {
+        curSong = song;
         await playSong(voiceChannel, message, song);
+    }
 }
 
-function checkQueue(voiceChannel, message) {
-    if (!isPlaying) {
-        if (songQueue.length > 0 )
-            return songQueue.shift();
-        else {
-            message.channel.send('leaving channel');
-            voiceChannel.leave();
+async function checkQueue(voiceChannel, message) {
+    if (!globals.isPlaying) {
+        if (globals.looping && curSong != null) {
+            firstTimePlaying = false;
+            return curSong;
+        } else if (globals.getQueue().length > 0 ) {
+            firstTimePlaying = true;
+            return globals.getQueue().shift();
+        } else {
+            //message.channel.send('Leaving channel');
+            //voiceChannel.leave();
             return null;
         }
     }
@@ -68,14 +76,14 @@ async function playSong(voiceChannel, message, song) {
 
         connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
-            isPlaying = false;
+            globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);
         });
 
-        await message.channel.send(`:thumbsup: Now Playing ***Your Link!***`)
-        isPlaying = true;
+        globals.isPlaying = true;
+        if (!globals.looping || firstTimePlaying) await message.channel.send(`:thumbsup: Now Playing ***Your Link!***`);
 
-        return
+        return;
     }
 
     const connection = await voiceChannel.join();
@@ -86,17 +94,18 @@ async function playSong(voiceChannel, message, song) {
         return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
     }
 
-    const video = await videoFinder(args.join(' '));
+    const video = await videoFinder(song);
 
     if(video){
         const stream = ytdl(video.url, {filter: 'audioonly'});
         connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
-            isPlaying = false;
+            globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);
         });
 
-        await message.channel.send(`:thumbsup: Now Playing ***${video.title}***`)
+        globals.isPlaying = true;
+        if (!globals.looping || firstTimePlaying) await message.channel.send(`:thumbsup: Now Playing ***${video.title}***`);
     }   else {
             message.channel.send('No video results found');
     }
