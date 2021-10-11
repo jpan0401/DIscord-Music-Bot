@@ -4,6 +4,8 @@ const globals = require('../globals.js');
 
 let curSong = null;
 let firstTimePlaying = true;
+let connection = null;
+let dispatcher = null;
 
 module.exports = {
     name: 'play',
@@ -50,8 +52,17 @@ async function checkQueue(voiceChannel, message) {
             firstTimePlaying = true;
             return globals.getQueue().shift();
         } else {
-            //message.channel.send('Leaving channel');
-            //voiceChannel.leave();
+            if (globals.leaveOnFinish) {
+                message.channel.send('Leaving channel');
+                voiceChannel.leave();
+            } else {
+                if (dispatcher != null) {
+                    //console.log("Trying to pause stream");
+                    //await connection;
+                    dispatcher.destroy();
+                    dispatcher = null;
+                }
+            }
             return null;
         }
     }
@@ -70,11 +81,14 @@ async function playSong(voiceChannel, message, song) {
         }
     }
 
-    if(validURL(song.split(' ')[0])){
-        const  connection = await voiceChannel.join();
-        const stream  = ytdl(song.split(' ')[0], {filter: 'audioonly'});
+    if (connection == null) {
+        connection = await voiceChannel.join();
+    }
 
-        connection.play(stream, {seek: 0, volume: 1})
+    if(validURL(song.split(' ')[0])){
+        const stream = ytdl(song.split(' ')[0], {filter: 'audioonly'});
+
+        dispatcher = connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
             globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);
@@ -86,8 +100,6 @@ async function playSong(voiceChannel, message, song) {
         return;
     }
 
-    const connection = await voiceChannel.join();
-
     const videoFinder = async (query) => {
         const videoResult = await ytSearch(query);
         
@@ -98,7 +110,7 @@ async function playSong(voiceChannel, message, song) {
 
     if(video){
         const stream = ytdl(video.url, {filter: 'audioonly'});
-        connection.play(stream, {seek: 0, volume: 1})
+        dispatcher = connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
             globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);

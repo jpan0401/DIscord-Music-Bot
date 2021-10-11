@@ -36,6 +36,8 @@ client.on('message', message =>{
         client.commands.get('leave').execute(message, args);
     } else if (command === 'loop' || command === 'l') {
         client.commands.get('loop').execute(message, args);
+    } else if (command === 'join' || command === 'j') {
+        client.commands.get('join').execute(message, args);
     }
 });
 
