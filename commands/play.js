@@ -55,14 +55,15 @@ async function checkQueue(voiceChannel, message) {
             if (globals.leaveOnFinish) {
                 message.channel.send('Leaving channel');
                 voiceChannel.leave();
-            } else {
-                if (dispatcher != null) {
-                    //console.log("Trying to pause stream");
-                    //await connection;
-                    dispatcher.destroy();
-                    dispatcher = null;
-                }
             }
+
+            // General Cleanup
+            if (dispatcher != null) {
+                dispatcher.destroy();
+                dispatcher = null;
+            }
+            connection = null;
+
             return null;
         }
     }
