@@ -30,15 +30,46 @@ client.on('message', message =>{
 
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
-    if (command === 'play' || command === 'skip' || command === 'p' || command === 'clear' || command === 's') {
-        client.commands.get('play').execute(message, args);
-    } else if (command === 'leave' || command === 'fuckoff' || command === 'begone') {
-        client.commands.get('leave').execute(message, args);
-    } else if (command === 'loop' || command === 'l') {
-        client.commands.get('loop').execute(message, args);
-    } else if (command === 'join' || command === 'j') {
-        client.commands.get('join').execute(message, args);
+
+    switch(command) {
+        case 'play':
+        case 'p':
+        case 'skip':
+        case 's':
+        case 'clear':
+            client.commands.get('play').execute(message, args);
+            break;
+        case 'leave':
+        case 'fuckoff':
+        case 'begone':
+            client.commands.get('leave').execute(message, args);
+            break;
+        case 'loop':
+        case 'l':
+            client.commands.get('loop').execute(message, args);
+            break;
+        case 'join':
+        case 'j':
+            client.commands.get('join').execute(message, args);
+            break;
+        case 'love':
+        case 'ily':
+            client.commands.get('love').execute(message, args);
+            break;
+        default:
+            client.commands.get('default').execute(message, args);
+            break;
     }
+
+    // if (command === 'play' || command === 'skip' || command === 'p' || command === 'clear' || command === 's') {
+    //     client.commands.get('play').execute(message, args);
+    // } else if (command === 'leave' || command === 'fuckoff' || command === 'begone') {
+    //     client.commands.get('leave').execute(message, args);
+    // } else if (command === 'loop' || command === 'l') {
+    //     client.commands.get('loop').execute(message, args);
+    // } else if (command === 'join' || command === 'j') {
+    //     client.commands.get('join').execute(message, args);
+    // }
 });
 
 fs.readFile('./token.config', 'utf8' , (err, token) => {
