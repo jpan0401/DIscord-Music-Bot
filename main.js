@@ -56,6 +56,9 @@ client.on('message', message =>{
         case 'ily':
             client.commands.get('love').execute(message, args);
             break;
+        case 'fix':
+            client.commands.get('fix').execute(message, args);
+            break;
         default:
             client.commands.get('default').execute(message, args);
             break;

@@ -4,8 +4,6 @@ const globals = require('../globals.js');
 
 let curSong = null;
 let firstTimePlaying = true;
-let connection = null;
-let dispatcher = null;
 
 module.exports = {
     name: 'play',
@@ -18,7 +16,7 @@ module.exports = {
         const permissions = voiceChannel.permissionsFor(message.client.user);
         if (!permissions.has('CONNECT')) return message.channel.send('You dont have the correct permissions');
         if (!permissions.has('SPEAK')) return message.channel.send('You dont have the correct permissions');
-        if (cmd === 'play' && !args.length) return message.channel.send('You need to send the second argument!');
+        if (cmd === 'play' && args.length < 2) return message.channel.send('You need to send the second argument!');
 
         if (cmd === 'clear') {
             message.channel.send("Clearing the queue");
@@ -58,11 +56,11 @@ async function checkQueue(voiceChannel, message) {
             }
 
             // General Cleanup
-            if (dispatcher != null) {
-                dispatcher.destroy();
-                dispatcher = null;
+            if (globals.dispatcher != null) {
+                globals.dispatcher.destroy();
+                globals.dispatcher = null;
             }
-            connection = null;
+            globals.connection = null;
 
             return null;
         }
@@ -82,14 +80,14 @@ async function playSong(voiceChannel, message, song) {
         }
     }
 
-    if (connection == null) {
-        connection = await voiceChannel.join();
+    if (globals.connection == null) {
+        globals.connection = await voiceChannel.join();
     }
 
     if(validURL(song.split(' ')[0])){
         const stream = ytdl(song.split(' ')[0], {filter: 'audioonly'});
 
-        dispatcher = connection.play(stream, {seek: 0, volume: 1})
+        globals.dispatcher = globals.connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
             globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);
@@ -111,7 +109,7 @@ async function playSong(voiceChannel, message, song) {
 
     if(video){
         const stream = ytdl(video.url, {filter: 'audioonly'});
-        dispatcher = connection.play(stream, {seek: 0, volume: 1})
+        globals.dispatcher = globals.connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
             globals.isPlaying = false;
             queueAndPlay(voiceChannel, message);
