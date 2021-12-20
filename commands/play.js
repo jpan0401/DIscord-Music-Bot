@@ -86,6 +86,8 @@ async function playSong(voiceChannel, message, song) {
 
     if(validURL(song.split(' ')[0])){
         const stream = ytdl(song.split(' ')[0], {filter: 'audioonly'});
+        let info = await ytdl.getInfo(song.split(' ')[0]);
+        let title = info.player_response.videoDetails.title;
 
         globals.dispatcher = globals.connection.play(stream, {seek: 0, volume: 1})
         .on('finish', () =>{
@@ -94,7 +96,7 @@ async function playSong(voiceChannel, message, song) {
         });
 
         globals.isPlaying = true;
-        if (!globals.looping || firstTimePlaying) await message.channel.send(`:thumbsup: Now Playing ***Your Link!***`);
+        if (!globals.looping || firstTimePlaying) await message.channel.send(`:thumbsup: Now Playing ***${title}***`);
 
         return;
     }
